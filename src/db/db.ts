@@ -13,9 +13,3 @@ export const connectMongoDB = async () => {
     process.exit(1);
   }
 };
-
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log('MongoDB connection closed');
-  process.exit(0);
-});
