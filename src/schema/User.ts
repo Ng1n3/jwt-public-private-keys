@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   passwordConfirm?: string;
+  refreshToken?:string
   createdAt: Date;
   updatedAt: Date;
   correctPassword: (password: string) => Promise<boolean>;
@@ -39,7 +40,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      minlength: [4, 'Passowrd must be at least 8 characters long'],
+      minlength: [4, 'Password must be at least 8 characters long'],
       maxlength: [20, 'Password must be at most 20 characters long'],
       select: false,
       validate: {
@@ -62,13 +63,17 @@ const userSchema = new Schema<IUser>(
         message: 'Passwords do not match',
       },
     },
+    refreshToken: {
+      type: String,
+      select: false,
+    }
   },
   {
     timestamps: true,
     toJSON: {
       transform: (doc, ret) => {
         delete ret.password;
-        delete ret.passswordConfirm;
+        delete ret.passwordConfirm;
         delete ret.__v;
         return ret;
       },

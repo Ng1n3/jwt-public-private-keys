@@ -1,15 +1,16 @@
 import express, { Application } from 'express';
 import mongoose from 'mongoose';
+import { AuthRouter } from './auth/auth.route';
 import { connectMongoDB } from './db/db';
 import userRouter from './users/users.route';
 
 const app: Application = express();
 const PORT = +process.env.PORT! || 6000;
 
-
 app.use(express.json());
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', AuthRouter);
 
 app.get('/api/v1/healthcheck', (req, res) => {
   try {

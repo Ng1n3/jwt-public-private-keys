@@ -8,6 +8,10 @@ export interface IUserRepository {
   findById(id: string): Promise<IUser | null>;
   findByEmail(email: string): Promise<IUser | null>;
   delete(id: string): Promise<void>;
+
+  updateRefreshToken(id: string, refreshToken: string): Promise<IUser | null>;
+  findbyRefreshToken(refreshToken: string): Promise<IUser | null>;
+  clearRefreshToken(id: string): Promise<void>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -33,5 +37,22 @@ export class UserRepository implements IUserRepository {
 
   async delete(id: string): Promise<void> {
     await User.findByIdAndDelete(id);
+  }
+
+  async updateRefreshToken(
+    id: string,
+    refreshToken: string
+  ): Promise<IUser | null> {
+    return User.findByIdAndUpdate(id, { refreshToken }, { new: true }).select(
+      '+refreshToken'
+    );
+  }
+
+  async findbyRefreshToken(refreshToken: string): Promise<IUser | null> {
+    return User.findOne({ refreshToken }).select('+refreshToken +password');
+  }
+
+  async clearRefreshToken(id: string): Promise<void> {
+    await User.findByIdAndUpdate(id, { $unset: { refreshToken: 1 } });
   }
 }

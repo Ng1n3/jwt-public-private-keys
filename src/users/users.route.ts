@@ -9,7 +9,7 @@ const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 
-userRouter.post('/', userController.create);
+// userRouter.post('/', userController.create);
 userRouter.get('/', userController.findAll);
 userRouter.get('/:id', userController.findById);
 userRouter.put('/:id', userController.update);
