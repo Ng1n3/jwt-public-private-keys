@@ -1,13 +1,29 @@
+import dotenv from 'dotenv';
 import fs from 'fs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import ms from 'ms';
 import path from 'path';
-
+dotenv.config();
 export interface JwtPayload {
   id: string;
   email: string;
 }
 
+if (!process.env.JWT_ACCESS_PRIVATE_KEY_PATH) {
+  throw new Error('JWT_ACCESS_PRIVATE_KEY_PATH is not set in environment variables');
+}
+
+if (!process.env.JWT_ACCESS_PUBLIC_KEY_PATH) {
+  throw new Error('JWT_ACCESS_PUBLIC_KEY_PATH is not set in environment variables');
+}
+
+if (!process.env.JWT_ISSUER) {
+  throw new Error('JWT_ISSUER is not set in environment variables');
+}
+
+if (!process.env.JWT_AUDIENCE) {
+  throw new Error('JWT_AUDIENCE is not set in environment variables');
+}
 export class JwtUtils {
   private static readonly ACCESS_TOKEN_EXPIRES_IN =
     process.env.JWT_ACCESS_EXPIRES_IN ?? '15m';
@@ -15,9 +31,10 @@ export class JwtUtils {
     process.env.JWT_REFRESH_EXPIRES_IN ?? '7d';
 
   private static readonly PRIVATE_KEY_PATH =
-    process.env.JWT_ACCESS_PRIVATE_KEY_PATH ?? '../auth/keys/private.pem';
+    process.env.JWT_ACCESS_PRIVATE_KEY_PATH!;
+
   private static readonly PUBLIC_KEY_PATH =
-    process.env.JWT_ACCESS_PUBLIC_KEY_PATH ?? '../auth/keys/public.pem';
+    process.env.JWT_ACCESS_PUBLIC_KEY_PATH!;
 
   private static getPrivateKey(): string {
     try {
