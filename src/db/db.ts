@@ -2,7 +2,11 @@ import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 dotenv.config();
 
-const db_URI = process.env.DB_URI || 'mongodb://localhost:27017/jwt_auth';
+if (!process.env.DB_URI) {
+  throw new Error('DB_URI is not set in environment variables');
+}
+
+const db_URI = process.env.DB_URI;
 
 export const connectMongoDB = async () => {
   try {
