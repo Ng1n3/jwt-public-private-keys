@@ -17,6 +17,6 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authMiddleWare.authenticate, authController.logout);
-router.post('/me', authMiddleWare.authenticate, authController.getCurrentUser);
+router.get('/me', authMiddleWare.authenticate, authController.getCurrentUser);
 
 export { router as AuthRouter };

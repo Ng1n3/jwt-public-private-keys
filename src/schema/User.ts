@@ -10,7 +10,7 @@ export interface IUser extends Document {
   refreshToken?:string
   createdAt: Date;
   updatedAt: Date;
-  correctPassword: (password: string) => Promise<boolean>;
+  correctPassword: (password: string, hash: string) => Promise<boolean>;
 }
 
 // Define the user schema

@@ -41,12 +41,20 @@ export class AuthController {
   async login(req: Request, res: Response) {
     try {
       const result = await this.authService.login(req.body);
-
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.status(200).json({
+        status: 'OK',
+        messaged: 'Logged in successfully',
+        data: {
+          user: result.user,
+          accessToken: result.accessToken,
+        },
       });
     } catch (error: any) {
       res.status(401).json({
@@ -57,20 +65,12 @@ export class AuthController {
     }
   }
 
-  async refreshToken (req: Request, res: Response) {
+  async refreshToken(req: Request, res: Response) {
     try {
-      const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
-      if (!refreshToken) {
-        res.status(401).json({
-          status: 'FAIL',
-          message: 'Refresh token not provided',
-          data: null,
-        });
-      }
-
+      const refreshToken = req.cookies.refreshToken;
       const result = await this.authService.refreshToken({ refreshToken });
 
-      res.status(201).json({
+      res.status(200).json({
         status: 'OK',
         message: 'access token sucessfully created',
         data: result,
@@ -87,9 +87,7 @@ export class AuthController {
   async logout(req: Request, res: Response) {
     try {
       const userId = (req as any).user?.id;
-      if (userId) {
-        await this.authService.logout(userId);
-      }
+      await this.authService.logout(userId);
 
       res.clearCookie('refreshToken');
       res.status(200).json({

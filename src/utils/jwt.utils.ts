@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { Jwt, SignOptions } from 'jsonwebtoken';
 import ms from 'ms';
 import path from 'path';
 dotenv.config();
@@ -10,11 +10,15 @@ export interface JwtPayload {
 }
 
 if (!process.env.JWT_ACCESS_PRIVATE_KEY_PATH) {
-  throw new Error('JWT_ACCESS_PRIVATE_KEY_PATH is not set in environment variables');
+  throw new Error(
+    'JWT_ACCESS_PRIVATE_KEY_PATH is not set in environment variables'
+  );
 }
 
 if (!process.env.JWT_ACCESS_PUBLIC_KEY_PATH) {
-  throw new Error('JWT_ACCESS_PUBLIC_KEY_PATH is not set in environment variables');
+  throw new Error(
+    'JWT_ACCESS_PUBLIC_KEY_PATH is not set in environment variables'
+  );
 }
 
 if (!process.env.JWT_ISSUER) {
@@ -24,6 +28,7 @@ if (!process.env.JWT_ISSUER) {
 if (!process.env.JWT_AUDIENCE) {
   throw new Error('JWT_AUDIENCE is not set in environment variables');
 }
+
 export class JwtUtils {
   private static readonly ACCESS_TOKEN_EXPIRES_IN =
     process.env.JWT_ACCESS_EXPIRES_IN ?? '15m';
@@ -77,21 +82,35 @@ export class JwtUtils {
   }
 
   static verifyAccessToken(token: string): JwtPayload {
-    const publicKey = this.getPublicKey();
-    return jwt.verify(token, publicKey, {
-      algorithms: ['RS256'],
-      issuer: process.env.JWT_ISSUER,
-      audience: process.env.JWT_AUDIENCE,
-    }) as JwtPayload;
+    try {
+      const publicKey = this.getPublicKey();
+
+      const decoded = jwt.verify(token, publicKey, {
+        algorithms: ['RS256'],
+        issuer: process.env.JWT_ISSUER,
+        audience: process.env.JWT_AUDIENCE,
+      }) as JwtPayload;
+
+      return decoded;
+    } catch (error: any) {
+      console.log(`JWT verification error: ${error.message}`);
+      throw new Error(`Failed to verify access token: ${error.message}`);
+    }
   }
 
   static verifyRefreshToken(token: string): JwtPayload {
-    const publicKey = this.getPublicKey();
-    return jwt.verify(token, publicKey, {
-      algorithms: ['RS256'],
-      issuer: process.env.JWT_ISSUER,
-      audience: process.env.JWT_AUDIENCE,
-    }) as JwtPayload;
+    try {
+      const publicKey = this.getPublicKey();
+      const decoded = jwt.verify(token, publicKey, {
+        algorithms: ['RS256'],
+        issuer: process.env.JWT_ISSUER,
+        audience: process.env.JWT_AUDIENCE,
+      }) as JwtPayload;
+      
+      return decoded;
+    } catch (error: any) {
+      throw new Error(`Failed to verify refresh token: ${error.message}`);
+    }
   }
 
   static generateTokenPair(payload: JwtPayload) {

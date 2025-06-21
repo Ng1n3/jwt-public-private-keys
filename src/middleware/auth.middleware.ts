@@ -33,10 +33,13 @@ export class AuthMiddleware {
         return;
       }
 
+      // console.log(`Attempting to verify token: ${token.substring(0, 20)}...`);
+
       // verify token
       const decoded = JwtUtils.verifyAccessToken(token);
+      // console.log(`decoded in middleware: ${JSON.stringify(decoded)}`);
 
-      // check if user still exists
+
       const user = await this.userRepository.findById(decoded.id);
       if (!user) {
         res.status(401).json({
@@ -44,9 +47,9 @@ export class AuthMiddleware {
           message: 'User no longer exists',
           data: null,
         });
+        return
       }
 
-      // attach user to request
       req.user = {
         id: decoded.id,
         email: decoded.email,
